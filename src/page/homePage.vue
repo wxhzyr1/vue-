@@ -119,13 +119,8 @@ const changeProvince = () => {
   const idx = boundary.features.findIndex(
     (item) => province.value == item.properties.name
   );
-  let data = boundary.features[idx]?.geometry.coordinates;
   provinceIdx=idx;
-  if (boundary.features[idx]?.geometry.type == "MultiPolygon") {
-    map.onCreateProvinceLine(province.value, data);
-  } else {
-    map.onCreateProvinceLine(province.value, [data]);
-  }
+  changeSlider()
   if (idx !== -1 && boundary.features[idx]?.properties?.center) {
     const center = boundary.features[idx].properties.center;
     if (Array.isArray(center) && center.length >= 2) {
