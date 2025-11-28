@@ -202,9 +202,9 @@ const darwPoint=()=>{
         return
     }
     if(arr.length==3)
-    map.drawPoint(arr[1],arr[2],arr[0],"base")
+    map.drawPoint(arr[1],arr[2],arr[0],"base",true)
     else
-    map.drawPoint(arr[0],arr[1],"","base")
+    map.drawPoint(arr[0],arr[1],"","base",true)
 }
 const copy=(txt:string)=>{
     copyTest(txt)

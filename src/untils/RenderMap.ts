@@ -303,7 +303,7 @@ export class RenderMap {
     });
   }
 
-  drawPoint(lng: number, lat: number, name: string, type: string) {
+  drawPoint(lng: number, lat: number, name: string, type: string,fly:boolean=false) {
     let PointContent = `
       <div class="custom-marker" style="transform: translateY(-12px);">
         <div class="${type}"></div>
@@ -322,6 +322,7 @@ export class RenderMap {
       const gga = toGGA(lat, lng);
       emitter.emit("changeGGA", gga);
     });
+    fly&&this.setCenter(lng.toString(), lat.toString(),8)
     this.points.push(Point);
   }
   // 添加地图点击事件监听，输出经纬度
