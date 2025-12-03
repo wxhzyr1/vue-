@@ -1,6 +1,7 @@
 import { toGGA } from "./toGGA";
 import emitter from "./mybus";
 import MapConfig from "./mapConfig";
+import _ from 'lodash'
 export class RenderMap {
   el: string; // 挂载节点
   map: any;
@@ -31,7 +32,8 @@ export class RenderMap {
   polygonRightClickHandler: any = null;
   finalPolygon:Array<any> = [];
   //围栏点数据集
-  fencePoints:Array<any> = [];
+  fencePoints: Array<any> = [];
+  polyList: Array<any> = [];
   constructor(el: string, L: any) {
     this.el = el;
     this.L = L;
@@ -101,7 +103,24 @@ export class RenderMap {
         opacity: 1,
       }).addTo(this.map);
     }
-    emitter.emit("changeFence",JSON.stringify(this.fencePoints));
+    let polyginArr:string[]=[]
+    
+    this.fencePoints.forEach(item => {
+      if (Array.isArray(item)) {
+        item.forEach(obj => {
+          polyginArr.push(obj)
+        });
+      }
+      else {
+        polyginArr.push(item);
+      }
+    });
+    polyginArr.forEach((item:any) => {
+      const i = item[0].toFixed(6)
+      item[0] = item[1].toFixed(6);
+      item[1]=i
+    })
+    emitter.emit("changeFence", polyginArr.map((item:any)=>item.join(" ")).join(","));
   }
   onPolygonMouseMove(e: any) {
     if (this.polygonPoints.length === 0) return;
@@ -247,7 +266,14 @@ export class RenderMap {
         this.map.removeLayer(this.Point);
       });
   }
-
+  clearProvice() {
+    if (this.provincePolygons.length > 0) {
+      this.provincePolygons.forEach((polygon: any) => {
+        this.map.removeLayer(polygon); // Leaflet 使用 removeLayer
+      });
+      this.provincePolygons = [];
+    }
+  }
   // 绘制省份边界
   onCreateProvinceLine(province: string, data: any) {
     // 假设 data 是省份边界坐标数组，格式：L.LatLngExpression[][]
@@ -257,13 +283,12 @@ export class RenderMap {
       });
       this.provincePolygons = [];
     }
-    if (!province) {
-      return;
-    }
-
+    // if (!province) {
+    //   return;
+    // }
     data.forEach((item: any, index: number) => {
       // 转换坐标格式（Leaflet 需要 [lat, lng]）
-      const latLngs: any = item[0].map((coord: [number, number]) => [
+      const latLngs: any = item.map((coord: [number, number]) => [
         coord[1], // lat
         coord[0], // lng
       ]);
@@ -488,7 +513,22 @@ export class RenderMap {
     }
     this.staPoints = [];
   }
-
+  drawPolygon(data: any) { 
+    const polygon = this.L.polygon(data, {
+      fillColor: "#3388ff",
+      fillOpacity: 0.2,
+      color: "#3388ff",
+      weight: 2,
+      opacity: 1,
+    }).addTo(this.map);
+    this.polyList.push(polygon);
+  }
+  clearPoly() { 
+    this.polyList.forEach((item) => {
+      this.map.removeLayer(item);
+    });
+    this.polyList = [];
+  }
   // 开始测距方法
   startMeasure() {
     this.isMeasuring = true;

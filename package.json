@@ -9,11 +9,15 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@amap/amap-jsapi-loader": "^1.0.1",
+    "axios": "^1.13.2",
     "element-plus": "^2.11.8",
     "leaflet": "^1.9.4",
+    "lodash": "^4.17.21",
     "mitt": "^3.0.1",
     "tdesign-icons-vue-next": "^0.4.1",
     "tdesign-vue-next": "^1.17.3",
+    "terser": "^5.44.1",
     "vue": "^3.5.24"
   },
   "devDependencies": {
