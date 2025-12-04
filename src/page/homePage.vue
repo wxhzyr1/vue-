@@ -84,11 +84,7 @@ import _ from "lodash";
 import { getMapData } from "../api/mapApi";
 import { boundary } from "./map/100000_full";
 import { ElMessage } from "element-plus";
-declare global {
-  interface Window {
-    Cesium: any;
-  }
-}
+import * as Cesium from "cesium";
 const ggaTxt = ref("");
 const latlngMessage = ref("");
 const dilution = ref(0);
@@ -116,10 +112,10 @@ const trunToBlh = () => {
   }catch (error) {
     return
   }
-  const cartesian = new window.Cesium.Cartesian3(arr[0], arr[1], arr[2])
-  const cartographic = window.Cesium.Cartographic.fromCartesian(cartesian);
-  const longitude = window.Cesium.Math.toDegrees(cartographic.longitude).toFixed(8); 
-  const latitude = window.Cesium.Math.toDegrees(cartographic.latitude).toFixed(8);   
+  const cartesian = new Cesium.Cartesian3(arr[0], arr[1], arr[2])
+  const cartographic = Cesium.Cartographic.fromCartesian(cartesian);
+  const longitude = Cesium.Math.toDegrees(cartographic.longitude).toFixed(8); 
+  const latitude = Cesium.Math.toDegrees(cartographic.latitude).toFixed(8);   
   const height = cartographic.height.toFixed(2);
   trunResult.value = `${longitude} ${latitude} ${height}`
 }
@@ -130,12 +126,12 @@ const trunToXyz = () => {
   }catch (error) {
     return
   }
-  const cartographic = new window.Cesium.Cartographic(
-    window.Cesium.Math.toRadians(arr[0]),  // 经度转弧度
-    window.Cesium.Math.toRadians(arr[1]),  // 纬度转弧度
+  const cartographic = new Cesium.Cartographic(
+    Cesium.Math.toRadians(arr[0]),  // 经度转弧度
+    Cesium.Math.toRadians(arr[1]),  // 纬度转弧度
     arr[2]                           // 高程
   )
-  const cartesian = window.Cesium.Cartographic.toCartesian(cartographic)
+  const cartesian = Cesium.Cartographic.toCartesian(cartographic)
   const x = cartesian.x.toFixed(4)
   const y = cartesian.y.toFixed(4)
   const z = cartesian.z.toFixed(4)
