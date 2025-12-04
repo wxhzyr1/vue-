@@ -2,7 +2,6 @@
     <div id="map"></div>
     <div class="untils">
         <div class="latlng-input">
-            <p>寻点:</p>
             <t-textarea v-model="latlngInput" placeholder="输入id,经度,纬度,以空格隔开,多个点使用逗号或空格隔开" class="point-input" />
             <t-button @click="darwPoint">绘点</t-button>
             <t-button @click="darwPoly">绘区</t-button>
@@ -33,7 +32,7 @@
             </t-tooltip>
         </t-space>
         <div class="measure-switch">
-            <p>测绘:</p>
+            <p>测距:</p>
             <t-switch v-model="isMeasure" @change="measureChange"></t-switch>
             <p>绘制区域:</p>
             <t-switch v-model="isPolygon" @change="polygonChange"></t-switch>
@@ -168,7 +167,7 @@ const distance = computed(() => {
     return "0";
   }
 });
-emitter.on("changeFence", (txt:any) => {
+emitter.on("changeFence", (txt: any) => {
     if(txt==`""`){
         latlngMessage.value=""
         return
@@ -349,7 +348,7 @@ watch(() => province.value, (val) => {
         align-items: center;
         gap: 10px;
         .point-input{
-          width: 718px;
+          width: 766px;
         }
     }
     .container{

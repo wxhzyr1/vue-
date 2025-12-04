@@ -116,17 +116,14 @@ export class RenderMap {
       }
     });
     polyginArr.forEach((item:any) => {
-      const i = item[0].toFixed(6)
-      item[0] = item[1].toFixed(6);
+      const i = item[0].toFixed(2)
+      item[0] = item[1].toFixed(2);
       item[1]=i
     })
     emitter.emit("changeFence", polyginArr.map((item:any)=>item.join(" ")).join(","));
   }
   onPolygonMouseMove(e: any) {
     if (this.polygonPoints.length === 0) return;
-    // if (this.tempPolygon) {
-    //    this.map.removeLayer(this.tempPolygon);
-    //  }
     const latlng = e.latlng;
     const latLngs = [...this.polygonPoints, latlng];
     
