@@ -3,19 +3,14 @@
     <div class="untils">
         <div class="latlng-input">
             <p>寻点:</p>
-            <t-textarea v-model="latlngInput" placeholder="输入id,经度,纬度,以空格隔开,多个点使用逗号隔开" class="point-input" />
+            <t-textarea v-model="latlngInput" placeholder="输入id,经度,纬度,以空格隔开,多个点使用逗号或空格隔开" class="point-input" />
             <t-button @click="darwPoint">绘点</t-button>
             <t-button @click="darwPoly">绘区</t-button>
             <t-button @click="clearPoint" theme="default">清除绘制</t-button>
-            <p>绘制地区:</p>
-            <t-input clearable style="width: 150px;" @enter="changeProvince" v-model="province" placeholder="输入地区名称" class="province-input" />
-            <t-button @click="changeProvince">确认</t-button>
-            <t-space v-if="province" style="align-items: center;">
-                <p>稀释程度:</p>
-                <t-slider :min="0" @change="changeSlider" v-model="dilution" style="width: 100px;" />
-                <p>{{ dilution }}</p>
-            </t-space>
+            <IconFont v-if="!collspace" style="cursor: pointer;" @click="()=>collspace=!collspace" name="chevron-up-double" />
+            <IconFont v-else style="cursor: pointer;" @click="()=>collspace=!collspace" name="chevron-down-double" />
         </div>
+        <div v-show="!collspace" class="container">
         <t-space style="align-items: center;">
             <p>距离计算:</p>
             <t-input v-model="distance1" placeholder="输入经纬度坐标,以空格间隔" style="width: 300px;" />
@@ -42,6 +37,14 @@
             <t-switch v-model="isMeasure" @change="measureChange"></t-switch>
             <p>绘制区域:</p>
             <t-switch v-model="isPolygon" @change="polygonChange"></t-switch>
+            <p>绘制地区:</p>
+            <t-input clearable style="width: 150px;" @enter="changeProvince" v-model="province" placeholder="输入地区名称" class="province-input" />
+            <t-button @click="changeProvince">确认</t-button>
+            <t-space v-if="province" style="align-items: center;">
+                <p>稀释程度:</p>
+                <t-slider :min="0" @change="changeSlider" v-model="dilution" style="width: 100px;" />
+                <p>{{ dilution }}</p>
+            </t-space>
         </div>
         <div v-if="latlngMessage" class="show-message">
             <div class="header">
@@ -56,6 +59,7 @@
                 <copy-icon class="copy-icon" @click="copy(provinceDiluteData)" style="cursor: pointer;" :fill-color='["#699ef5","#699ef5"]' :stroke-color='["#4787f0","#4787f0"]' :stroke-width="2"/>
             </div>
             <t-textarea disabled v-model="provinceDiluteData"></t-textarea>
+        </div>
         </div>
     </div>
     <div class="gga-show" v-if="ggaTxt">
@@ -94,7 +98,6 @@ const isPolygon = ref(false);
 const isMeasure = ref(false);
 const latlngInput = ref("");
 const distance1 = ref("");
-const trunTo = ref(1);
 const trunOrigin = ref("");
 const trunResult = ref("");
 const distance2 = ref("");
@@ -106,6 +109,7 @@ emitter.on("changeGGA", (txt: any) => {
   latLng.value = txt.lng+" "+txt.lat;
   ggaTxt.value = txt.gga;
 });
+const collspace=ref(false);
 const trunToBlh = () => {
   let arr:any;
   try {
@@ -115,9 +119,9 @@ const trunToBlh = () => {
   }
   const cartesian = new window.Cesium.Cartesian3(arr[0], arr[1], arr[2])
   const cartographic = window.Cesium.Cartographic.fromCartesian(cartesian);
-  const longitude = window.Cesium.Math.toDegrees(cartographic.longitude); 
-  const latitude = window.Cesium.Math.toDegrees(cartographic.latitude);   
-  const height = cartographic.height;
+  const longitude = window.Cesium.Math.toDegrees(cartographic.longitude).toFixed(8); 
+  const latitude = window.Cesium.Math.toDegrees(cartographic.latitude).toFixed(8);   
+  const height = cartographic.height.toFixed(2);
   trunResult.value = `${longitude} ${latitude} ${height}`
 }
 const trunToXyz = () => {
@@ -133,9 +137,9 @@ const trunToXyz = () => {
     arr[2]                           // 高程
   )
   const cartesian = window.Cesium.Cartographic.toCartesian(cartographic)
-  const x = cartesian.x
-  const y = cartesian.y
-  const z = cartesian.z
+  const x = cartesian.x.toFixed(4)
+  const y = cartesian.y.toFixed(4)
+  const z = cartesian.z.toFixed(4)
   trunOrigin.value = `${x} ${y} ${z}`
 }
 const distance = computed(() => {
@@ -186,7 +190,7 @@ onMounted(() => {
     map.addMapClickListener()
 })
 const darwPoly = () => {
-  const arr = latlngInput.value.split(",").map(item => {
+  const arr = latlngInput.value.split(/[,，\n\r]+/).filter(item => item.trim() !== '').map(item => {
     const obj = item.split(" ").map(Number)
     return obj
   })
@@ -224,12 +228,21 @@ const changeProvince = () => {
   provinceMessage(province.value)
 };
 const changeSlider = () => { 
-    let data = diluteCoordinates(provinceData);
-    console.log(_.flatten(data));
-    
-  provinceDiluteData.value = _.flatten(data).map((item: any) => {
-      item[0] = item[0]?.toFixed(6)
-      item[1]=item[1]?.toFixed(6)
+    let data:Array<any> = diluteCoordinates(provinceData);
+    let maxArr=[]
+    if (Array.isArray(data[0][0])) {
+      for (let i = 0; i < data.length; i++) {
+        if (data[i].length > maxArr.length) {
+          maxArr = data[i];
+        }
+      }
+    }
+    else {
+      maxArr = data[0];
+    }
+    provinceDiluteData.value =maxArr.map((item: any) => {
+      item[0] = +item[0]?.toFixed(2)
+      item[1]=+item[1]?.toFixed(2)
       return item.join(" ")
     }).join(",")
     map.onCreateProvinceLine(province.value, data);
@@ -261,7 +274,7 @@ const polygonChange=()=>{
     }
 }
 const darwPoint = () => {
-    const points=latlngInput.value.split(",");
+    const points = latlngInput.value.split(/[,，\n\r]+/).filter(item => item.trim() !== '');
     points.forEach((item) => {
       const arr=item.split(" ")
       if(arr.length==3)
@@ -280,6 +293,7 @@ const copy=(txt:string)=>{
 watch(() => province.value, (val) => {
   if (!val) {
     map.clearProvice()
+    provinceDiluteData.value = ""
   }
 })
 </script>
@@ -335,8 +349,13 @@ watch(() => province.value, (val) => {
         align-items: center;
         gap: 10px;
         .point-input{
-          width: 300px;
+          width: 718px;
         }
+    }
+    .container{
+        display: flex;
+        flex-direction: column;
+        transition: all 0.5s ease-in-out;
     }
 }
 .custom-marker {
