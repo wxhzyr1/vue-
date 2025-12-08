@@ -79,6 +79,7 @@ import {RenderMap} from "../untils/RenderMap";
 import { CopyIcon } from "tdesign-icons-vue-next";
 import { copyTest } from "../untils/pageuntils";
 import { IconFont } from 'tdesign-icons-vue-next';
+import coordtransform from 'coordtransform';
 import L from "leaflet";
 import _ from "lodash";
 import { getMapData } from "../api/mapApi";
@@ -101,7 +102,7 @@ const provinceDiluteData = ref("");
 const numberRegex:any = /-?\d+\.?\d*/g;
 const options = ref<Array<{ label: string; value: string }>>([]);
 emitter.on("changeGGA", (txt: any) => {
-  latLng.value = txt.lng+" "+txt.lat;
+  latLng.value = coordtransform.gcj02towgs84(txt.lng, txt.lat).join(" ");
   ggaTxt.value = txt.gga;
 });
 const collspace=ref(false);
@@ -167,8 +168,13 @@ emitter.on("changeFence", (txt: any) => {
     if(txt==`""`){
         latlngMessage.value=""
         return
-    }
-  latlngMessage.value = txt;
+  }
+  txt.forEach((item: any) => {
+    const data = coordtransform.gcj02towgs84(+item[0], +item[1]);
+    item[0] = data[0].toFixed(2);
+    item[1] = data[1].toFixed(2)
+  })
+  latlngMessage.value = txt.map((item:any)=>item.join(" ")).join(",");
 });
 boundary.features.forEach((item) => {
   if (item.properties.name) {
@@ -183,16 +189,18 @@ onMounted(() => {
     map=new RenderMap("map", L);
     map.init();
     map.addMapClickListener()
+    console.log(coordtransform);
+    
 })
 const darwPoly = () => {
   const arr = latlngInput.value.split(/[,，\n\r]+/).filter(item => item.trim() !== '').map(item => {
     const obj = item.split(" ").map(Number)
     return obj
   })
-  arr.forEach((item:any) => {
-    const i = item[0]
-    item[0] = item[1]
-    item[1] = i
+  arr.forEach((item: any) => {
+    const data = coordtransform.wgs84togcj02(item[0], item[1])
+    item[0] = data[1]
+    item[1] = data[0]
   })
   map.drawPolygon(arr);
 }
@@ -235,9 +243,10 @@ const changeSlider = () => {
     else {
       maxArr = data[0];
     }
-    provinceDiluteData.value =maxArr.map((item: any) => {
-      item[0] = +item[0]?.toFixed(2)
-      item[1]=+item[1]?.toFixed(2)
+    provinceDiluteData.value = maxArr.map((item: any) => {
+      const data = coordtransform.gcj02towgs84(item[0], item[1])
+      item[0] = +data[0]?.toFixed(2)
+      item[1]=+data[1]?.toFixed(2)
       return item.join(" ")
     }).join(",")
     map.onCreateProvinceLine(province.value, data);
@@ -269,13 +278,18 @@ const polygonChange=()=>{
     }
 }
 const darwPoint = () => {
+    let data=[]
     const points = latlngInput.value.split(/[,，\n\r]+/).filter(item => item.trim() !== '');
     points.forEach((item) => {
       const arr=item.split(" ")
-      if(arr.length==3)
-      map.drawPoint(arr[1],arr[2],arr[0],"base",true)
-      else if(arr.length==2)
-        map.drawPoint(arr[0], arr[1], "", "base", true)
+      if (arr.length == 3) {
+        data = coordtransform.wgs84togcj02(arr[1], arr[2])
+        map.drawPoint(data[0],data[1],arr[0],"base",true)
+      }
+      else if (arr.length == 2) {
+        data = coordtransform.wgs84togcj02(arr[0], arr[1])
+        map.drawPoint(data[0],data[1], "", "base", true)
+      }
       else {
         ElMessage.error("格式错误")
         return

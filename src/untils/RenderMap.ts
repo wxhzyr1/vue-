@@ -116,11 +116,11 @@ export class RenderMap {
       }
     });
     polyginArr.forEach((item:any) => {
-      const i = item[0].toFixed(2)
-      item[0] = item[1].toFixed(2);
+      const i = item[0]
+      item[0] = item[1];
       item[1]=i
     })
-    emitter.emit("changeFence", polyginArr.map((item:any)=>item.join(" ")).join(","));
+    emitter.emit("changeFence", polyginArr);
   }
   onPolygonMouseMove(e: any) {
     if (this.polygonPoints.length === 0) return;

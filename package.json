@@ -12,6 +12,7 @@
     "@amap/amap-jsapi-loader": "^1.0.1",
     "axios": "^1.13.2",
     "cesium": "^1.136.0",
+    "coordtransform": "^2.1.2",
     "element-plus": "^2.11.8",
     "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
