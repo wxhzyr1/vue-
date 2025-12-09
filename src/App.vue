@@ -4,6 +4,8 @@
   </div>
 </template>
 <script setup lang="ts">
+import * as Cesium from 'cesium'
+window.Cesium = Cesium
 </script>
 
 <style scoped lang="scss">

@@ -4,7 +4,11 @@ const routes = [
     {
         path: '/',
         component: () => import('@/views/Home.vue')
-    }
+    },
+    {
+        path: '/gaodemap',
+        component: () => import('@/views/originGaoDe.vue')
+    },
 ]
 const router = createRouter({
     history: createWebHistory(),
