@@ -6,7 +6,10 @@ declare module '*.vue' {
 
 declare global {
   interface Window {
-    Cesium: any
+    Cesium: any,
+    _AMapSecurityConfig: Object,
+    AMap: any
   }
 }
+
 export {}

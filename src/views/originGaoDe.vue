@@ -1,13 +1,15 @@
 <template>
     <div id="map"></div>
 </template>
-<script lang="ts">
+<script lang="ts" setup>
 import GaodeMap from '@/mapUntils/gaodeConfig';
 import { onMounted } from 'vue';
-let map=null
+let map:any=null
 onMounted(() => { 
     map = new GaodeMap('map')
-    map.init()
+    map.init().then(() => {
+        map.initAMap()
+    })
 })
 </script>
 <style lang="scss">
