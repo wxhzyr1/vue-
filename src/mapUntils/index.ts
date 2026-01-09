@@ -55,6 +55,16 @@ export default class CesiumMap {
       });
       return polygonEntity;
     }
+    // addGeohubCustomStyle() {
+    //     // 构造高德 geohub 瓦片服务 URL（如果支持的话）
+    //     const geohubTileUrl = `https://webst0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=2ffb5989679be06db1a654bbdc48ffae&x={x}&y={y}&z={z}`;
+        
+    //     const customLayer = new AmapImageryProvider({
+    //         url: geohubTileUrl
+    //     });
+
+    //     this.viewer?.imageryLayers.addImageryProvider(customLayer as any);
+    // }
     createSolidColorImage(color: Cesium.Color): string {
         const canvas = document.createElement('canvas');
         canvas.width = 1;
@@ -100,6 +110,7 @@ export default class CesiumMap {
         })
         if (this.viewer) {
             this.addGdLayer({})
+            // this.addGeohubCustomStyle()
             this.viewer.camera.setView({
                 destination: Cesium.Cartesian3.fromDegrees(114.71893,30.750941, 10000000),
                 orientation: {

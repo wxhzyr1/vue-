@@ -9,6 +9,10 @@ const routes = [
         path: '/gaodemap',
         component: () => import('@/views/originGaoDe.vue')
     },
+    {
+        path: "/threepage",
+        component: () => import('@/views/threePage.vue')
+    }
 ]
 const router = createRouter({
     history: createWebHistory(),
